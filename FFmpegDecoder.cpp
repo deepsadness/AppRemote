@@ -63,6 +63,7 @@ SDL_bool FFmpegDecoder::init() {
 
 int decode_run(void *data) {
     FFmpegDecoder *decoder = static_cast<FFmpegDecoder *>(data);
+    decoder->init();
     decoder->_decode_loop();
     return 0;
 }
@@ -80,15 +81,15 @@ SDL_bool FFmpegDecoder::async_start() {
 void FFmpegDecoder::_decode_loop() {
     int ret;
     while (av_read_frame(format_ctx, packet) >= 0) {
-//        printf("av_read_frame success\n");
+        printf("av_read_frame success\n");
         while (1) {
             ret = avcodec_send_packet(codec_ctx, packet);
             if (ret == 0) {
-//                    printf("avcodec_send_packet success\n");
+                printf("avcodec_send_packet success\n");
                 //成功找到了
                 break;
             } else if (ret == AVERROR(EAGAIN)) {
-//                    printf("avcodec_send_packet EAGAIN\n");
+                printf("avcodec_send_packet EAGAIN\n");
                 break;
             } else {
                 printf("avcodec_send_packet error:%s\n", av_err2str(ret));
@@ -96,21 +97,20 @@ void FFmpegDecoder::_decode_loop() {
                 goto quit;
             }
         }
-//            while (1) {
+//        while (1) {
         //将解码的内容，放到decode_frame上
         ret = avcodec_receive_frame(codec_ctx, cache->decode_frame);
         if (ret == 0) {
             //成功找到了
-//                printf("avcodec_receive_frame success\n");
+//            printf("avcodec_receive_frame success\n");
 //                break;
         } else if (ret == AVERROR(EAGAIN)) {
-//                    printf("avcodec_receive_frame EAGAIN\n");
-//                    break;
+//                printf("avcodec_receive_frame EAGAIN\n");
         } else {
             printf("avcodec_receive_frame error:%s\n", av_err2str(ret));
             goto quit;
         }
-//            }
+//        }
         //送现
         SDL_bool consumer_preview = cache->product_frame();
 //        sc->send_frame(pFrame);

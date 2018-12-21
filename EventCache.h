@@ -6,15 +6,31 @@
 #define ASREMOTE_EVENTCACHE_H
 
 #include "SDL2/SDL_events.h"
+#include "SDL2/SDL_mutex.h"
 
-class EventCache {
-    SDL_Event event;
-    EventCache *next;
-    int size;
+#define CONTROL_EVENT_QUEUE_SIZE 64
+
+
+class EventQueue {
+    SDL_Event queue[CONTROL_EVENT_QUEUE_SIZE];
+    int head;
+    int tail;
+    long size=0;
 
 public:
-    void push_event(SDL_Event event);
-    SDL_Event pop_event();
+
+    SDL_bool init();
+
+    void destroy();
+
+    SDL_bool push_event(SDL_Event event);
+
+    int is_empty();
+
+    int is_full();
+
+    SDL_bool take_event(SDL_Event *event);
+
 };
 
 

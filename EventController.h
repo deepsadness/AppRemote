@@ -13,10 +13,16 @@
 
 class EventController {
 public:
-    EventCache *queue;
+    EventQueue *queue;
     SDL_Thread *event_tid;
     SDL_Screen *screen;
     SocketConnection *connection;
+    SDL_bool stop;
+
+    SDL_mutex *mutex;
+    SDL_cond *cond;
+
+    EventController(SDL_Screen *screen, SocketConnection *connection);
 
     void init();
 
@@ -25,6 +31,10 @@ public:
     void destroy();
 
     void event_handle();
+
+    void stop_loop();
+
+    void push_event(SDL_Event event);
 
     void handleButtonEvent(SDL_Screen *screen, SDL_MouseButtonEvent *event);
 

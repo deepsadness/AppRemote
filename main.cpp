@@ -28,18 +28,22 @@ int main() {
     cache->init();
 
     FFmpegDecoder *decoder = new FFmpegDecoder(socketConnection, cache, screen);
-    decoder->init();
+//    decoder->init();
     decoder->async_start();
 
-    EventController *controller = new EventController();
+    EventController *controller = new EventController(screen, socketConnection);
     controller->init();
     controller->async_start();
 
     //开启事件循环
+    printf("开启事件循环\n");
+
     SDL_Event event;
     //开启Event Loop
     for (;;) {
         SDL_WaitEvent(&event);
+        printf("接到事件\n");
+
         if (event.type == EVENT_NEW_FRAME) { //渲染
             AVFrame *render = cache->render_frame;
             screen->uploadTexture(
@@ -52,7 +56,7 @@ int main() {
             printf("rev event type=SDL_QUIT\n");
             break;
         } else {
-            controller->queue->push_event(event);
+            controller->push_event(event);
         }
     }
 

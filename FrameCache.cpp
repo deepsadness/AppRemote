@@ -26,7 +26,7 @@ SDL_bool FrameCache::init() {
 
     render_frame = av_frame_alloc();
 
-    consume_render = SDL_FALSE;
+    consume_render = SDL_TRUE;
 
     return SDL_TRUE;
 }

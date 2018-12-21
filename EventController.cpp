@@ -5,11 +5,25 @@
 #include "EventController.h"
 
 void EventController::init() {
+    queue = new EventQueue();
+    queue->init();
 
+    mutex = SDL_CreateMutex();
+    if (!mutex) {
+        printf("EventQueue SDL_CreateMutex error\n");
+//        return SDL_FALSE;
+    }
+
+    cond = SDL_CreateCond();
+    if (!cond) {
+        printf("EventQueue SDL_CreateCond error\n");
+//        return SDL_FALSE;
+    }
 }
 
 int event_run(void *data) {
     EventController *controller = static_cast<EventController *>(data);
+    controller->stop = SDL_FALSE;
     controller->event_handle();
     return 0;
 }
@@ -19,6 +33,12 @@ void EventController::async_start() {
 }
 
 void EventController::destroy() {
+    stop_loop();
+    queue->destroy();
+
+//    SDL_CondSignal(cond);
+    SDL_DestroyCond(cond);
+    SDL_DestroyMutex(mutex);
 
 }
 
@@ -219,18 +239,55 @@ void EventController::handleSDLKeyEvent(SDL_Screen *sc, SDL_KeyboardEvent *event
 }
 
 void EventController::event_handle() {
-    SDL_Event event = queue->pop_event();
-    if (event.type == SDL_MOUSEBUTTONDOWN) {
-        handleButtonEvent(screen, &event.button);
-    } else if (event.type == SDL_MOUSEBUTTONUP) {
-        handleButtonEvent(screen, &event.button);
-    } else if (event.type == SDL_KEYDOWN) {
-        handleSDLKeyEvent(screen, &event.key);
-    } else if (event.type == SDL_KEYUP) {
-        handleSDLKeyEvent(screen, &event.key);
-    } else if (event.type == SDL_MOUSEWHEEL) {
-        //处理滑动事件
-        handleScrollEvent(screen, &event.wheel);
+    printf("event_handle");
+    for (;;) {
+        if (stop) {
+            break;
+        }
+        SDL_Event event;
+        SDL_LockMutex(mutex);
+
+        if (queue->is_empty()) {
+            printf("is empty\n");
+//        return SDL_FALSE;
+            SDL_CondWait(cond, mutex);
+        }
+        SDL_bool sdl_bool = queue->take_event(&event);
+        SDL_UnlockMutex(mutex);
+
+        if (event.type == SDL_MOUSEBUTTONDOWN) {
+            handleButtonEvent(screen, &event.button);
+        } else if (event.type == SDL_MOUSEBUTTONUP) {
+            handleButtonEvent(screen, &event.button);
+        } else if (event.type == SDL_KEYDOWN) {
+            handleSDLKeyEvent(screen, &event.key);
+        } else if (event.type == SDL_KEYUP) {
+            handleSDLKeyEvent(screen, &event.key);
+        } else if (event.type == SDL_MOUSEWHEEL) {
+            //处理滑动事件
+            handleScrollEvent(screen, &event.wheel);
+        }
     }
+
+}
+
+void EventController::stop_loop() {
+    stop = SDL_TRUE;
+}
+
+EventController::EventController(SDL_Screen *screen, SocketConnection *connection) : screen(screen),
+                                                                                     connection(connection) {}
+
+void EventController::push_event(SDL_Event event) {
+    SDL_LockMutex(mutex);
+    //先判断当前是否为空。因为如果为空的话，会锁住。
+    int empty = queue->is_empty();
+    queue->push_event(event);
+    //如果是空的话，就需要通知他继续取
+    if (empty) {
+        printf("signal");
+        SDL_CondSignal(cond);
+    }
+    SDL_UnlockMutex(mutex);
 }
 

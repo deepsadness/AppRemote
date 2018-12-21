@@ -77,7 +77,7 @@ void SDL_Screen::uploadTexture(const Uint8 *Yplane, int Ypitch, const Uint8 *Upl
 
 void SDL_Screen::push_frame_event() {
     static SDL_Event new_frame_event = {
-            .type=EVENT_NEW_FRAME;
+            .type=EVENT_NEW_FRAME
     };
     SDL_PushEvent(&new_frame_event);
 
