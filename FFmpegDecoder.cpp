@@ -2,6 +2,7 @@
 // Created by Cry on 2018-12-20.
 //
 
+#include <exception>
 #include "FFmpegDecoder.h"
 
 FFmpegDecoder::FFmpegDecoder(SocketConnection *connection, FrameCache *cache, SDL_Screen *screen) : connection(
@@ -10,6 +11,9 @@ FFmpegDecoder::FFmpegDecoder(SocketConnection *connection, FrameCache *cache, SD
 //从socket中读取
 int read_socket_buffer(void *opaque, uint8_t *buf, int buf_size) {
     FFmpegDecoder *decoder = static_cast<FFmpegDecoder *>(opaque);
+    if (decoder->request_stop == SDL_TRUE) {
+        return -1;
+    }
     int count = decoder->connection->recv_from_(buf, buf_size);
 //    int count = recv(decoder->connection->client_conn, buf, buf_size, 0);
     if (count == 0) {
@@ -68,7 +72,12 @@ int decode_run(void *data) {
     if (ret == SDL_FALSE) {
 
     } else {
-        decoder->_decode_loop();
+        try {
+            decoder->_decode_loop();
+        }catch (const std::exception& e){
+            printf("error = %d \n",e.what());
+        }
+
     }
     return 0;
 }
