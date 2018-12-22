@@ -16,12 +16,20 @@ int main() {
     }
     //连接成功。
     printf("连接成功\n");
+    //从客户端接受屏幕数据
+    uint8_t size[4];
+    socketConnection->recv_from_(reinterpret_cast<uint8_t *>(size), 4);
+
     //这里先写死，后面从客户端内接受
-    int width = 720;
-    int height = 1280;
-    float scale = 0.5f;
+    int width = (size[0] << 8) | (size[1]);
+    int height = (size[2] << 8) | (size[3]);
+
+    printf("width = %d , height = %d \n", width, height);
+
+
+    int scale =2;
     char *name = "as_remote";
-    SDL_Screen *screen = new SDL_Screen(name, static_cast<int>(width * scale), static_cast<int>(height * scale));
+    SDL_Screen *screen = new SDL_Screen(name, static_cast<int>(width / scale), static_cast<int>(height / scale));
     screen->init();
     //开启编码器
     FrameCache *cache = new FrameCache();
@@ -61,6 +69,7 @@ int main() {
     }
 
     controller->destroy();
+    decoder->stop();
     decoder->destroy();
     screen->destroy();
     delete screen;

@@ -273,6 +273,7 @@ void EventController::event_handle() {
 
 void EventController::stop_loop() {
     stop = SDL_TRUE;
+    SDL_DetachThread(event_tid);
 }
 
 EventController::EventController(SDL_Screen *screen, SocketConnection *connection) : screen(screen),

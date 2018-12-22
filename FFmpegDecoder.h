@@ -28,6 +28,8 @@ public:
 
     AVPacket *packet;
 
+    SDL_bool request_stop;
+
     FFmpegDecoder(SocketConnection *connection);
 
     FFmpegDecoder(SocketConnection *connection, FrameCache *cache, SDL_Screen *screen);
@@ -37,6 +39,8 @@ public:
     SDL_bool async_start();
 
     void _decode_loop();
+
+    void stop();
 
     void destroy();
 };

@@ -57,14 +57,19 @@ SDL_bool FFmpegDecoder::init() {
     printf("成功打开编码器\n");
     //创建Packet
     packet = av_packet_alloc();
+    request_stop = SDL_FALSE;
     return SDL_TRUE;
 }
 
 
 int decode_run(void *data) {
     FFmpegDecoder *decoder = static_cast<FFmpegDecoder *>(data);
-    decoder->init();
-    decoder->_decode_loop();
+    SDL_bool ret = decoder->init();
+    if (ret == SDL_FALSE) {
+
+    } else {
+        decoder->_decode_loop();
+    }
     return 0;
 }
 
@@ -81,15 +86,20 @@ SDL_bool FFmpegDecoder::async_start() {
 void FFmpegDecoder::_decode_loop() {
     int ret;
     while (av_read_frame(format_ctx, packet) >= 0) {
-        printf("av_read_frame success\n");
+        printf("decoder w = %d ,h =%d \n", codec_ctx->width, codec_ctx->height);
+        if (request_stop == SDL_TRUE) {
+            break;
+        }
+
+//        printf("av_read_frame success\n");
         while (1) {
             ret = avcodec_send_packet(codec_ctx, packet);
             if (ret == 0) {
-                printf("avcodec_send_packet success\n");
+//                printf("avcodec_send_packet success\n");
                 //成功找到了
                 break;
             } else if (ret == AVERROR(EAGAIN)) {
-                printf("avcodec_send_packet EAGAIN\n");
+//                printf("avcodec_send_packet EAGAIN\n");
                 break;
             } else {
                 printf("avcodec_send_packet error:%s\n", av_err2str(ret));
@@ -132,5 +142,12 @@ void FFmpegDecoder::_decode_loop() {
 }
 
 void FFmpegDecoder::destroy() {
+    request_stop = SDL_FALSE;
     avformat_close_input(&format_ctx);
+}
+
+void FFmpegDecoder::stop() {
+    request_stop = SDL_FALSE;
+    //等待decoder线程执行完.
+    SDL_DetachThread(decoder_tid);
 }
