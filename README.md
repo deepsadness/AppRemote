@@ -7,9 +7,8 @@ Android ADB Simple Remote Screen
 https://github.com/Genymobile/scrcpy 
 
 - 博文地址:
-[Android PC投屏简单尝试—最终章1](https://www.jianshu.com/p/06f4b8919991)
-
-[Android PC投屏简单尝试—最终章2](https://www.jianshu.com/p/c2da5174d5f7)
+1. [Android PC投屏简单尝试—最终章1](https://www.jianshu.com/p/06f4b8919991)
+2. [Android PC投屏简单尝试—最终章2](https://www.jianshu.com/p/c2da5174d5f7)
 
 ## 使用
 *因为使用了Clion，目前只能在mac上运行。还未配置VSStudio*
