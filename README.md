@@ -1,11 +1,14 @@
-#AppRemote
+# AppRemote
 
 Android ADB Simple Remote Screen
 通过ADB连接，在mac上进行Android屏幕简单的控制
 
-参考项目：https://github.com/Genymobile/scrcpy
-博文地址:
+- 参考项目：
+https://github.com/Genymobile/scrcpy 
+
+- 博文地址:
 [Android PC投屏简单尝试—最终章1](https://www.jianshu.com/p/06f4b8919991)
+
 [Android PC投屏简单尝试—最终章2](https://www.jianshu.com/p/c2da5174d5f7)
 
 ## 使用
