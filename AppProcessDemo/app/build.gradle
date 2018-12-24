@@ -1,0 +1,161 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.cry.cry.appprocessdemo"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    afterEvaluate {
+//        classex_jar.dependsOn(assembleDebug)
+//        class_cls.dependsOn(assembleDebug)
+//        rename_apk.dependsOn(assembleDebug)
+//        assembleDebug.doLast {
+//            class_cls.execute()
+//        }
+    }
+//
+//    applicationVariants.all {
+//        v ->
+//            v.assemble.doLast {
+//                v.outputs.each {
+//                    o ->
+//                        def outputFile = o.outputFile
+//                        if (outputFile.name.endsWith('apk')) {
+//                            def outputPath = "../out/apk"
+//                            copy {
+//                                from outputFile
+//                                into outputPath
+//                                rename { "a.jar" }
+//                            }
+//                        }
+//                }
+//            }
+//    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+/*
+因为app_process只能执行dex ,所以这样不行
+
+task class_jar(type: Jar) {
+    from "build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/" //核心，将.class 文件编译成Jar包
+//    from 'src/main/aidl/'
+    destinationDir = file('build/libs')
+    exclude('/android')
+    exclude('/androidx')
+    //移除R
+    exclude { it.name.startsWith('R') || it.name.startsWith('BuildConfig') }
+//    manifest {
+//        attributes 'Main-Class': 'com.cry.cry.appprocessdemo.HelloWorld'
+//    }
+    archiveName 'build.jar'
+}
+ */
+
+//将dex文件复制
+//
+//task class_cls(type: Copy) {
+//    println "class_cls"
+//    from "build/intermediates/transforms/dexMerger/debug/0/"
+//    destinationDir = file('build/libs')
+//}
+
+//将dex文件复制
+//这些内置好的Copy和Jar类型的Task其实对应的也是Action
+task classex_jar(type: Jar, dependsOn: "assembleDebug") {
+    //直接写在这里的，或在配置解析阶段运行
+    println getName()
+//    doLast {
+    from "build/intermediates/transforms/dexMerger/debug/0/"
+    destinationDir = file('build/libs')
+    archiveName 'class.jar'
+//    }
+}
+
+//将编译好的push到手机上.不知道为什么这个执行不了？
+task adb_push(dependsOn: "classex_jar") {
+    //直接写在这里的，或在配置解析阶段运行
+    println "adb_push"
+    //actions是在执行阶段运行
+    doLast {
+//        def jarDir = "build/libs/class.jar"
+        File file = new File("./app/build/libs/class.jar")
+        println "file path =" + file.getAbsolutePath()
+        println "file exits =" + file.exists()
+        def jarDir = file.getAbsolutePath()
+        def cmd = "adb push $jarDir /data/local/tmp"
+        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "))
+        Process push = builder.start()
+        if (push.waitFor() == 0) {
+            println "result = " + push.inputStream.text
+        } else {
+            println "error = " + push.errorStream.text
+        }
+    }
+}
+
+////直接运行，查看结果
+task adb_exc(dependsOn: "adb_push") {
+    //相当于制定了一个Action，在这个任务的最后执行
+    doLast {
+        println "adb_exc"
+        def cmd = "adb shell CLASSPATH=/data/local/tmp/class.jar app_process /data/local/tmp com.cry.cry.appprocessdemo.HelloWorld"
+        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "))
+        Process adbpb = builder.start()
+        println "start adb "
+        if (adbpb.waitFor() == 0) {
+            println "result = " + adbpb.inputStream.text
+        } else {
+            println "error = " + adbpb.errorStream.text
+        }
+    }
+}
+
+task adb_forward() {
+    doLast {
+        println "adb_forward"
+        def cmd = "adb forward --list"
+        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "))
+        Process adbpb = builder.start()
+        if (adbpb.waitFor() == 0) {
+            def result = adbpb.inputStream.text
+            println result.length()
+            if (result.length() <= 1) {
+                def forward_recorder = "adb forward tcp:9000 localabstract:recorder"
+                ProcessBuilder forward_pb = new ProcessBuilder(forward_recorder.split(" "))
+                Process forward_ps = forward_pb.start()
+                if (forward_ps.waitFor() == 0) {
+                    println "forward success!!"
+                }
+            } else {
+                println result
+            }
+        } else {
+            println "error = " + adbpb.errorStream.text
+        }
+    }
+}
+
+//
+//task rename_apk(type: Copy) {
+//    println "rename_apk"
+//
+//    from "build/outputs/apk/debug/app-debug.apk"
+//    into "build/libs"
+//    rename { "copy.jar" }
+//}
