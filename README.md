@@ -8,7 +8,7 @@ Android ADB Simple Remote Screen
 *因为使用了Clion，目前只能在mac上运行。还未配置VSStudio*
 
 1. Android手机通过USB连接电脑，开启USB调试模式
-2.打开[Android项目](https://github.com/deepsadness/AppRemote/tree/master/AppProcessDemo)
+2. 打开[Android项目](https://github.com/deepsadness/AppRemote/tree/master/AppProcessDemo)
 在AndroidStudio 的项目中。运行gradle中的 adb_forward 和adb_push 任务。
 3. 进入adb shell 运行app_process
 ```
