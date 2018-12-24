@@ -5,6 +5,17 @@ Android ADB Simple Remote Screen
 参考项目：https://github.com/Genymobile/scrcpy
 
 ## 使用
+*因为使用了Clion，目前只能在mac上运行。还未配置VSStudio*
+
+1. Android手机通过USB连接电脑，开启USB调试模式
+2. 在AndroidStudio 的项目中。运行gradle中的 adb_forward 和adb_push 任务。
+3. 进入adb shell 运行app_process
+```
+   adb shell CLASSPATH=/data/local/tmp/class.jar app_process /data/local/tmp com.cry.cry.appprocessdemo.HelloWorld
+```
+4.运行这个项目
+
+## 介绍
 - ADB
 使用 adb forward 进行接口转发。通过Socket进行连接
 - FFMPEG

@@ -95,7 +95,7 @@ SDL_bool FFmpegDecoder::async_start() {
 void FFmpegDecoder::_decode_loop() {
     int ret;
     while (av_read_frame(format_ctx, packet) >= 0) {
-        printf("decoder w = %d ,h =%d \n", codec_ctx->width, codec_ctx->height);
+//        printf("decoder w = %d ,h =%d \n", codec_ctx->width, codec_ctx->height);
         if (request_stop == SDL_TRUE) {
             break;
         }

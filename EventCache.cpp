@@ -26,7 +26,7 @@ SDL_bool EventQueue::push_event(SDL_Event event) {
         size++;
     }
 
-    printf("queue push_event event ,head = %d , size = %ld \n", head, size);
+//    printf("queue push_event event ,head = %d , size = %ld \n", head, size);
 
     return res;
 }
@@ -39,7 +39,7 @@ SDL_bool EventQueue::take_event(SDL_Event *event) {
     *event = queue[tail];
     tail = (tail + 1) % CONTROL_EVENT_QUEUE_SIZE;
     size--;
-    printf("queue take_event event ,tail = %d ,size = %ld \n", tail, size);
+//    printf("queue take_event event ,tail = %d ,size = %ld \n", tail, size);
 
     if (size < 0 || size > CONTROL_EVENT_QUEUE_SIZE) {
         printf("when size is larger than max?? size = %ld ,max = %d \n", size, CONTROL_EVENT_QUEUE_SIZE);

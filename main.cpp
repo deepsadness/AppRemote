@@ -50,7 +50,7 @@ int main() {
     //开启Event Loop
     for (;;) {
         SDL_WaitEvent(&event);
-        printf("接到事件\n");
+//        printf("接到事件\n");
 
         if (event.type == EVENT_NEW_FRAME) { //渲染
             AVFrame *render = cache->render_frame;

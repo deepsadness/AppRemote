@@ -248,7 +248,7 @@ void EventController::event_handle() {
         SDL_LockMutex(mutex);
 
         if (queue->is_empty()) {
-            printf("is empty\n");
+//            printf("is empty\n");
 //        return SDL_FALSE;
             SDL_CondWait(cond, mutex);
         }
@@ -286,7 +286,7 @@ void EventController::push_event(SDL_Event event) {
     queue->push_event(event);
     //如果是空的话，就需要通知他继续取
     if (empty) {
-        printf("signal");
+//        printf("signal");
         SDL_CondSignal(cond);
     }
     SDL_UnlockMutex(mutex);
